@@ -1,0 +1,1 @@
+# Monologue Entry Manager
