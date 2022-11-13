@@ -7,12 +7,13 @@ import pandas as pd
 # Methods: parse JSON, check against CSV files to append new entries
 class MonoEntryLoader:
 
-    def __init__(self, entry_table, story_table) -> None:
+    def __init__(self) -> None:
 
-        self.entry_table = entry_table
-        self.story_table = story_table
+       self.story_header = ['id', 'name', 'isArchive']
+       self.entry_header = ['id', 'created', 'storyId', 'storyName', 'isArchive', 'body']
 
-    def load_mono_json(self, json_path) -> tuple:
+       self.story_header_str = ','.join(story_header)
+       self.entry_header_str = ','.join(entry_header)
 
         with open(json_path, 'r') as file:
             data = json.load(file)
