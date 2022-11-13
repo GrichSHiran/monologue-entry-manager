@@ -39,7 +39,7 @@ class MonoEntryLoader:
     #     except FileNotFoundError:
     #         has_entry_table = False
 
-    def process_stories(self, stories) -> pd.DataFrame:
+    def process_stories(self, stories: dict) -> pd.DataFrame:
 
         story_df = pd.DataFrame(stories)
         story_df = story_df.drop(columns=['color', 'created'])
@@ -52,7 +52,7 @@ class MonoEntryLoader:
 
         return story_df
 
-    def process_entries(self, entries, story_df) -> pd.DataFrame:
+    def process_entries(self, entries: dict, story_df: pd.DataFrame) -> pd.DataFrame:
 
         entry_df = pd.DataFrame(entries)
 
