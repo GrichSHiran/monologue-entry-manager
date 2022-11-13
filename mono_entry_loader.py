@@ -15,11 +15,19 @@ class MonoEntryLoader:
        self.story_header_str = ','.join(story_header)
        self.entry_header_str = ','.join(entry_header)
 
+    def load_mono_json(self, json_path, option) -> dict:
+
         with open(json_path, 'r') as file:
             data = json.load(file)
 
-        entries = data['entries']
-        stories = data['stories']
+        val_options = ['stories', 'entries']
+        if option not in val_options:
+            print("Invalid Option Argument")
+            return 
+
+        dict = data['entries']
+
+        return dict
 
         return (entries, stories)
 
