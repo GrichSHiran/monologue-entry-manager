@@ -25,7 +25,7 @@ class MonoEntryLoader:
             print("Invalid Option Argument")
             return 
 
-        dict = data['entries']
+        dict = data[option]
 
         return dict
 
