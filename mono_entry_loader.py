@@ -29,7 +29,29 @@ class MonoEntryLoader:
 
         return dict
 
-        return (entries, stories)
+    def load_table(self, table_path, option='entry') -> pd.DataFrame:
+
+        val_options = ['story', 'entry']
+        if option not in val_options:
+            print(f"Invalid Option Argument: '{option}'")
+            return
+
+        header_str = self.story_header_str if option == 'story' else self.entry_header_str
+        
+        try:
+
+            has_table = True
+            table_df = pd.read_csv(table_path)
+
+        except FileNotFoundError:
+
+            has_table = False
+            with open(story_table_path, 'w') as file:
+                file.write(header_str)
+
+            table_df = pd.read_csv(table_path)
+
+        return table_df
 
     # def check_tables(self):
 
