@@ -12,8 +12,8 @@ class MonoEntryLoader:
        self.story_header = ['id', 'name', 'isArchive']
        self.entry_header = ['id', 'created', 'storyId', 'storyName', 'isArchive', 'body']
 
-       self.story_header_str = ','.join(story_header)
-       self.entry_header_str = ','.join(entry_header)
+       self.story_header_str = ','.join(self.story_header)
+       self.entry_header_str = ','.join(self.entry_header)
 
     def load_mono_json(self, json_path, option='entries') -> dict:
 
