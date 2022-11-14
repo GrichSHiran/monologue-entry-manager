@@ -91,7 +91,8 @@ class MonoEntryLoader:
         entry_df['storyId'] = entry_df['storyId'].fillna('NO_STORYID')
 
         story_names = entry_df['storyId'].map(story_df['name'])
-        entry_df = entry_df.assign(storyName=story_names)
+        archive_status = entry_df['storyId'].map(story_df['isArchive'])
+        entry_df = entry_df.assign(storyName=story_names, isArchive=archive_status)
 
         entry_df = entry_df.set_index('id', verify_integrity=True)
         entry_df = entry_df['created', 'storyId', 'storyName', 'body']
