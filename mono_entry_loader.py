@@ -25,6 +25,9 @@ class MonoEntryLoader:
             print(f"Invalid Option Argument: '{option}'")
             return 
 
+        with open(json_path, 'r') as file:
+            data = json.load(file)
+
         dict = data[option]
 
         return dict
