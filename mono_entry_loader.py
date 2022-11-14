@@ -15,6 +15,7 @@ class MonoEntryLoader:
        self.story_header_str = ','.join(self.story_header)
        self.entry_header_str = ','.join(self.entry_header)
 
+       self.null_story_id = '00000000-XXXX-0000-XXXX-000000000000'
 
     def load_mono_json(self, json_path, option='entries') -> dict:
 
