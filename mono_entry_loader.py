@@ -95,7 +95,11 @@ class MonoEntryLoader:
         entry_df = entry_df.assign(storyName=story_names, isArchive=archive_status)
 
         entry_df = entry_df.set_index('id', verify_integrity=True)
-        entry_df = entry_df['created', 'storyId', 'storyName', 'body']
+
+        index_free_header = self.entry_header.copy()
+        index_free_header.remove('id')
+
+        entry_df = entry_df[index_free_header]
         # entry_df is now a DataFrame with created, storyId, storyName, and body as headers and id as index
 
         return entry_df
