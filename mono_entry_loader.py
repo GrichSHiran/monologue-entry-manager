@@ -49,7 +49,7 @@ class MonoEntryLoader:
         except FileNotFoundError:
 
             has_table = False
-            with open(story_table_path, 'w') as file:
+            with open(table_path, 'w') as file:
                 file.write(header_str)
 
             table_df = pd.read_csv(table_path)
