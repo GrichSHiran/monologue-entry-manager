@@ -15,6 +15,7 @@ class MonoEntryLoader:
        self.story_header_str = ','.join(self.story_header)
        self.entry_header_str = ','.join(self.entry_header)
 
+
     def load_mono_json(self, json_path, option='entries') -> dict:
 
         with open(json_path, 'r') as file:
@@ -69,7 +70,7 @@ class MonoEntryLoader:
         story_df = pd.DataFrame(stories)
         story_df = story_df.drop(columns=['color', 'created'])
 
-        story_df.loc[len(story_df.index)] = ['NO_STORYID', 'FREE_ENTRY']
+        story_df.loc[len(story_df.index)] = [self.null_story_id, 'FREE_ENTRY']
         story_df['isArchive'] = 0
 
         story_df = story_df.set_index('id', verify_integrity=True)
@@ -88,7 +89,7 @@ class MonoEntryLoader:
 
         col_rename_dict = {'story': 'storyId', 'date': 'created', 'text': 'body'}
         entry_df = entry_df.rename(columns=col_rename_dict)
-        entry_df['storyId'] = entry_df['storyId'].fillna('NO_STORYID')
+        entry_df['storyId'] = entry_df['storyId'].fillna(self.null_story_id)
 
         story_names = entry_df['storyId'].map(story_df['name'])
         archive_status = entry_df['storyId'].map(story_df['isArchive'])
