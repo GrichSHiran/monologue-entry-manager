@@ -46,7 +46,7 @@ class MonoEntryLoader:
         try:
 
             has_table = True
-            table_df = pd.read_csv(table_path)
+            table_df = pd.read_csv(table_path, index_col=0)
 
         except FileNotFoundError:
 
@@ -54,7 +54,7 @@ class MonoEntryLoader:
             with open(table_path, 'w') as file:
                 file.write(header_str)
 
-            table_df = pd.read_csv(table_path)
+            table_df = pd.read_csv(table_path, index_col=0)
 
         return table_df
 
