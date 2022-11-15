@@ -106,3 +106,10 @@ class MonoEntryLoader:
 
         return entry_df
 
+    def drop_duplicates(self, loaded_df: pd.DataFrame, saved_df: pd.DataFrame) -> pd.DataFrame:
+
+        append_loc = (~loaded_df.index.isin(saved_df.index))
+        append_df = loaded_df.loc[append_loc]
+
+        return append_df
+
