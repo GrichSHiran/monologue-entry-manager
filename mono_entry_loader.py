@@ -113,3 +113,43 @@ class MonoEntryLoader:
 
         return append_df
 
+    def output_md(self, entry_df: pd.DataFrame, compost, archive) -> None:
+
+        for index, row in entry_df.iterrows():
+
+            fname = f"{row['created'].replace(':', '')}.md"
+
+            if row['isArchive'] == 1:
+                status = 'buried'
+                output_path = archive
+            else:
+                status = 'ripe'
+                output_path = compost
+
+            content = self.generate_md_content(row, index, status)
+
+            with open(f'{output_path}/{fname}', 'w') as file:
+                file.write(content)
+
+            print(f"\nThe File '{fname}' has been successfully created!\n")
+
+    def generate_md_content(self, row: pd.Series, id: str, default_status='ripe') -> str:
+
+        content_lines = [
+            f'---',
+            f'entryId: "{id}"',
+            f'created: "{row["created"]}"',
+            f'story: "{row["storyName"]}"',
+            f'---',
+            f'',
+            f'status:: {default_status}',
+            f'#dumped/monoEntry',
+            f'# {row["storyName"]}',
+            f'',
+            f'{row["body"]}',
+            f'',
+        ]
+
+        content = '\n'.join(content_lines)
+
+        return content
