@@ -153,3 +153,13 @@ class MonoEntryLoader:
         content = '\n'.join(content_lines)
 
         return content
+
+    def update_table(self, append_df: pd.DataFrame, table_path):
+
+        with open(table_path, 'a') as file:
+
+            new_rows = append_df.to_csv(header=False)
+            file.write(new_rows)
+
+            print(f"\nA total of {len(append_df)} new records has been successfully appended to: \n\t{table_path}")
+
