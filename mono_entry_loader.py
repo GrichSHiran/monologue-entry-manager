@@ -12,8 +12,8 @@ class MonoEntryLoader:
        self.story_header = ['id', 'name', 'isArchive']
        self.entry_header = ['id', 'created', 'storyId', 'storyName', 'isArchive', 'body']
 
-       self.story_header_str = ','.join(self.story_header)
-       self.entry_header_str = ','.join(self.entry_header)
+       self.story_header_str = ','.join(self.story_header) + '\n'
+       self.entry_header_str = ','.join(self.entry_header) + '\n'
 
        self.null_story_id = '00000000-XXXX-0000-XXXX-000000000000'
 
