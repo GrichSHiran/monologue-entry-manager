@@ -3,8 +3,6 @@ import datetime as dt
 import pandas as pd
 
 
-# Attributes: paths to JSON, and CSV files
-# Methods: parse JSON, check against CSV files to append new entries
 class MonoEntryLoader:
 
     def __init__(self) -> None:
@@ -64,7 +62,6 @@ class MonoEntryLoader:
         story_df['isArchive'] = 0
 
         story_df = story_df.set_index('id', verify_integrity=True)
-        # story_df is now a DataFrame with id, name, and isArchive headers
 
         return story_df
 
@@ -91,7 +88,6 @@ class MonoEntryLoader:
         index_free_header.remove('id')
 
         entry_df = entry_df[index_free_header]
-        # entry_df is now a DataFrame with created, storyId, storyName, and body as headers and id as index
 
         return entry_df
 
