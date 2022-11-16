@@ -19,9 +19,6 @@ class MonoEntryLoader:
 
     def load_mono_json(self, json_path, option='entries') -> dict:
 
-        with open(json_path, 'r') as file:
-            data = json.load(file)
-
         val_options = ['stories', 'entries']
         if option not in val_options:
             print(f"Invalid Option Argument: '{option}'")
