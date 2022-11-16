@@ -55,14 +55,6 @@ class MonoEntryLoader:
 
         return table_df
 
-    # def check_tables(self):
-
-    #     try:
-    #         saved_entry_table = pd.read_csv(self.entry_table, index_col='id')
-    #         has_entry_table = True
-    #     except FileNotFoundError:
-    #         has_entry_table = False
-
     def process_stories(self, stories: dict) -> pd.DataFrame:
 
         story_df = pd.DataFrame(stories)
