@@ -1,50 +1,108 @@
 # Monologue Entry Manager
 
-This is an automation module for automating the process of importing fleeting notes and integrating them into a [PKM system](https://github.com/GrichSHiran/pkm-system). It is designed to be used with [Monologue](https://www.monologueapp.com/) and an [Obsidian](https://obsidian.md/) vault. It loads the data from the Monologue JSON file and store each entry as a unique record with a primary key in CSV format and output it to a particular directory in the vault depending on how you configure the application.
+Imports journal entries from [Monologue](https://www.monologueapp.com/) into an Obsidian vault. Entries are exported from the iPhone via AirDrop, automatically detected on the Mac, and written as individual Markdown files.
 
-## Installation & Configuration
+## How It Works
 
-> *This section will be updated soon after the MVP of the first module is fully developed*
-## Architecture
+1. Tap **Export Entries** in Monologue → AirDrop to Mac → file lands in `~/Downloads`
+2. A launchd background service detects the new file and triggers `watcher.py`
+3. `watcher.py` calls `importer.py`, which parses the JSON, skips already-imported entries, and writes new ones as Markdown files to the configured output folder
+4. The processed JSON is moved to `data/processed/` as an archive
 
-The application is separted into 2 modules:
+Deduplication is handled via `data/imported_entries.csv`, which tracks every imported entry by its unique ID. This means you can safely rename, move, or delete output Markdown files without causing duplicates on the next import.
 
-1. **Loading Module:**  Responsible for parsing the main JSON file imported from [Monologue](https://www.monologueapp.com/), generating and updating story and entry CSV tables containing the list of imported items with unique IDs, and outputting each entry as a formatted markdown file to a specific directory depending on the entry's story and its configuration.
-2. **Automating Module:** Responsible for changing the `status` metadata of an outputted markdown file after it's been imported for a certain amount of time, moving files with archive status to archive directory, and listening for changes in the main JSON file to trigger the relavant series of procedures.
+## Project Structure
 
-### Status Keywords of Fleeting Notes:
+```
+monologue-entry-manager/
+  config.json       ← all configurable paths live here
+  importer.py       ← parses JSON and writes Markdown files
+  watcher.py        ← triggered by launchd, calls importer
+  data/
+    imported_entries.csv   ← import log (gitignored)
+    processed/             ← processed JSON archives (gitignored)
+    watcher.log            ← launchd stdout (gitignored)
+    watcher.err            ← launchd stderr (gitignored)
+  launchd/
+    com.grich.monologue-watcher.plist
+  test-output/      ← local test output, gitignored
+```
 
-- `ripe` : The note needs to be reviewed and processed
-- `rotten` : The note has been imported for too long and needs to be processed ASAP
-- `buried` : The note has been processed and is ready to be moved to the archive directory
-- `preserved` : The fleeting note is kept as an active log
+## Configuration
 
-## Development Pinboard
+Edit `config.json` to set your paths:
 
-### Assumption & Boundaries
+```json
+{
+  "watch_folder": "~/Downloads",
+  "output_folder": "~/ai-workspace/projects/monologue-entry-manager/test-output",
+  "data_folder":   "~/ai-workspace/projects/monologue-entry-manager/data"
+}
+```
 
-Here are the assumptions and boundaries for developing the MVP to avoid designing unnecessarily complex system in the early stage of development.
+| Key | Description |
+|---|---|
+| `watch_folder` | Where AirDrop drops files. Must match `WatchPaths` in the launchd plist. |
+| `output_folder` | Where Markdown files are written. Point this at your vault's `inbox/` when going live. |
+| `data_folder` | Where the import log CSV and processed JSON archives are stored. |
 
-- The main JSON is not empty and has at least 1 entry
-- A row cannot delete from the CSV tables
-- An entry connot be reassigned to a new story
-- An entry connot be modified after it is imported
-- An entry's `isArchive` status connot be switched after it is imported
-- A story's `name` and `isArchive` attributes cannot be editted after it is imported
+## Testing
 
-### Main Processes
+Run the importer manually against the exported JSON:
 
-1. Story Loading: Import and load the stories from the main JSON file and drop duplicates—if story table already exist—before adding new stories as new rows to the story table
-2. Story Config: A configuration prompt for setting the `isArchive` default status when new stories are imported
-3. Entry Loading: Import and and load the entries from the main JSON file and drop duplicates—if entry table already exist—before adding new entries as new rows to the entry table and output each new entry as a formatted markdown file
+```bash
+cd ~/ai-workspace/projects/monologue-entry-manager
+python3 importer.py ~/Downloads/Monologue.*.json
+```
 
-### Testing Scenarios
+Output files will appear in `test-output/`. Check a few to confirm the format looks right, then re-run — it should report `No new entries to import.`
 
-These are the test scenarios in which the first module of application will encounter and must handle.
+## Setup (Going Live)
 
-1. Fresh Run: First time running the application without any prior CSV tables
-    - Run Story Loading, Story Config, and Entry Loading
-2. Basic Loading: Importing new entries without any new stories from the main JSON file
-    - Run Story Loading and Entry Loading
-3. Loading with New Stories: Importing new entries with new stories from the main JSON file with prior CSV tables
-    - Run Story Loading, Story Config, and Entry Loading
+**1. Update `config.json`**
+
+Change `output_folder` to your vault inbox:
+
+```json
+"output_folder": "~/ai-workspace/main-vault/inbox"
+```
+
+**2. Register the launchd service**
+
+```bash
+cp launchd/com.grich.monologue-watcher.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.grich.monologue-watcher.plist
+```
+
+The watcher is now active. AirDrop a Monologue export to your Mac and entries will appear in your vault automatically.
+
+**3. Note on Python path**
+
+The plist uses `/usr/bin/python3`. If you use a custom Python install (pyenv, conda, etc.), update the `ProgramArguments` path in the plist to match before loading it.
+
+**To stop the service:**
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.grich.monologue-watcher.plist
+```
+
+## Output Format
+
+Each entry is written as a Markdown file with YAML frontmatter:
+
+```markdown
+---
+entryId: "7AA6C77B-CFE0-4FE4-B6AA-44F5E8F1E92C"
+created: "2020-08-01T17:31:07+07:00"
+story: "journal"
+source: monologue
+---
+
+Entry text here...
+```
+
+Filename format: `YYYY-MM-DD HH-MM-SS.md`
+
+---
+
+*Maintained by: Grich + Average Joe*
