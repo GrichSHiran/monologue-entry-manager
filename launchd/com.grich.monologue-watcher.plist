@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.grich.monologue-watcher</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/grichmacbookprom4pro2024/ai-workspace/projects/monologue-entry-manager/watcher.py</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/grichmacbookprom4pro2024/Downloads</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/grichmacbookprom4pro2024/ai-workspace/projects/monologue-entry-manager/data/watcher.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/grichmacbookprom4pro2024/ai-workspace/projects/monologue-entry-manager/data/watcher.err</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
