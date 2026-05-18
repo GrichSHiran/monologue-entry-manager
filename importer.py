@@ -1,7 +1,12 @@
 import csv
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
+
+
+def log(msg, file=sys.stdout):
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {msg}', file=file, flush=True)
 
 
 def load_config() -> dict:
@@ -67,7 +72,7 @@ def run(json_path: Path, config: dict):
     new_entries = [e for e in entries if e['id'] not in imported_ids]
 
     if not new_entries:
-        print('No new entries to import.')
+        log('No new entries to import.')
         return
 
     records = []
@@ -84,7 +89,7 @@ def run(json_path: Path, config: dict):
             counter += 1
 
         output_path.write_text(generate_md(entry, story_name), encoding='utf-8')
-        print(f'Created: {output_path.name}')
+        log(f'Created: {output_path.name}')
 
         records.append({
             'id': entry['id'],
@@ -94,12 +99,12 @@ def run(json_path: Path, config: dict):
         })
 
     append_imported_records(csv_path, records)
-    print(f'\n{len(records)} entries imported.')
+    log(f'{len(records)} entries imported.')
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('Usage: python importer.py <path-to-monologue.json>')
+        log('Usage: python importer.py <path-to-monologue.json>')
         sys.exit(1)
     config = load_config()
     run(Path(sys.argv[1]).expanduser(), config)

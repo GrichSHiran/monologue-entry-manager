@@ -1,9 +1,14 @@
 import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import importer
+
+
+def log(msg, file=sys.stdout):
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {msg}', file=file, flush=True)
 
 
 def run():
@@ -15,11 +20,11 @@ def run():
     json_files = list(watch_folder.glob('Monologue*.json'))
 
     if not json_files:
-        print('No Monologue JSON files found.')
+        log('No Monologue JSON files found.')
         return
 
     for json_path in json_files:
-        print(f'Processing: {json_path.name}')
+        log(f'Processing: {json_path.name}')
         try:
             importer.run(json_path, config)
             dest = processed_folder / json_path.name
@@ -28,9 +33,9 @@ def run():
                 dest = processed_folder / f'{json_path.stem}-{counter}.json'
                 counter += 1
             shutil.move(str(json_path), str(dest))
-            print(f'Archived to processed/: {dest.name}')
+            log(f'Archived to processed/: {dest.name}')
         except Exception as e:
-            print(f'Error processing {json_path.name}: {e}', file=sys.stderr)
+            log(f'Error processing {json_path.name}: {e}', file=sys.stderr)
 
 
 if __name__ == '__main__':
