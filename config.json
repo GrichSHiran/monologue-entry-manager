@@ -1,5 +1,4 @@
 {
-  "watch_folder": "~/Downloads",
-  "output_folder": "~/ai-workspace/projects/monologue-entry-manager/test-output",
+  "output_folder": "~/ai-workspace/main-vault/inbox/monologue",
   "data_folder": "~/ai-workspace/projects/monologue-entry-manager/data"
 }
