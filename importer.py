@@ -4,6 +4,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from namer import generate_filenames
+
 
 def log(msg, file=sys.stdout):
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {msg}', file=file, flush=True)
@@ -33,10 +35,11 @@ def append_imported_records(csv_path: Path, records: list):
         writer.writerows(records)
 
 
-def format_filename(date_str: str) -> str:
-    # Normalise ISO 8601 with timezone offset to a safe filename
-    safe = date_str.replace(':', '-').replace('+', '+')
-    return safe[:19].replace('T', ' ') + '.md'
+def format_filename(date_str: str, name: str = '') -> str:
+    date_part = date_str[:10]
+    if name:
+        return f'{date_part} - {name}.md'
+    return f'{date_part}.md'
 
 
 def generate_md(entry: dict, story_name: str) -> str:
@@ -75,12 +78,18 @@ def run(json_path: Path, config: dict):
         log('No new entries to import.')
         return
 
+    log(f'Generating filenames for {len(new_entries)} entries...')
+    slugs = generate_filenames([
+        {'id': e['id'], 'text': e.get('text', ''), 'story': stories.get(e.get('story'), 'journal')}
+        for e in new_entries
+    ])
+
     records = []
     for entry in new_entries:
         story_id = entry.get('story')
         story_name = stories.get(story_id, 'journal') if story_id else 'journal'
 
-        filename = format_filename(entry['date'])
+        filename = format_filename(entry['date'], slugs.get(entry['id'], ''))
         output_path = output_folder / filename
 
         counter = 1
