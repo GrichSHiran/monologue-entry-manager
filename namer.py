@@ -25,6 +25,30 @@ Entries:
 {entries_block}"""
 
 
+BATCH_SIZE = 30
+
+
+def _name_batch(client, entries: list[dict], offset: int) -> dict[int, str]:
+    """Name a single batch of entries. Returns dict of batch-local index (1-based) -> name."""
+    blocks = []
+    for i, entry in enumerate(entries, 1):
+        story = entry.get('story', 'journal')
+        text = entry.get('text', '').strip()
+        blocks.append(f'Entry {i} | story: {story}\n{text}')
+
+    prompt = PROMPT_TEMPLATE.format(entries_block='\n\n'.join(blocks))
+
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=2048,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    response = message.content[0].text.strip()
+    if response.startswith('```'):
+        response = response.split('```')[1].lstrip('json').strip()
+    return json.loads(response)
+
+
 def generate_filenames(entries: list[dict]) -> dict[str, str]:
     """
     entries: list of dicts with keys: id, text, story
@@ -46,26 +70,16 @@ def generate_filenames(entries: list[dict]) -> dict[str, str]:
     except ImportError:
         return {}
 
-    id_map = {str(i): entry['id'] for i, entry in enumerate(entries, 1)}
+    results: dict[str, str] = {}
+    for offset in range(0, len(entries), BATCH_SIZE):
+        batch = entries[offset:offset + BATCH_SIZE]
+        id_map = {str(i): entry['id'] for i, entry in enumerate(batch, 1)}
+        try:
+            names = _name_batch(client, batch, offset)
+            for k, v in names.items():
+                if k in id_map:
+                    results[id_map[k]] = v
+        except Exception:
+            pass  # partial failure — remaining entries fall back to date-only
 
-    blocks = []
-    for i, entry in enumerate(entries, 1):
-        story = entry.get('story', 'journal')
-        text = entry.get('text', '').strip()
-        blocks.append(f'Entry {i} | story: {story}\n{text}')
-
-    prompt = PROMPT_TEMPLATE.format(entries_block='\n\n'.join(blocks))
-
-    try:
-        message = client.messages.create(
-            model=MODEL,
-            max_tokens=1024,
-            messages=[{'role': 'user', 'content': prompt}],
-        )
-        response = message.content[0].text.strip()
-        if response.startswith('```'):
-            response = response.split('```')[1].lstrip('json').strip()
-        names = json.loads(response)
-        return {id_map[k]: v for k, v in names.items() if k in id_map}
-    except Exception:
-        return {}
+    return results
