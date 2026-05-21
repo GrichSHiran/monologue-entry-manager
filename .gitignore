@@ -1,5 +1,5 @@
 .DS_Store
-env
+.env
 .venv
 __pycache__
 .ipynb_checkpoints
@@ -9,4 +9,3 @@ test-output/
 data/*.csv
 data/*.log
 data/*.err
-data/processed/*.json
